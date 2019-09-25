@@ -10,11 +10,19 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import javax.sql.DataSource;
 
 /**
+ * xxl-job的JavaConfig配置，底层基于对quartz的二次开发
+ * 创建了2个Bean：SchedulerFactoryBean和XxlJobDynamicScheduler
  * @author xuxueli 2018-10-28 00:18:17
  */
 @Configuration
 public class XxlJobDynamicSchedulerConfig {
 
+    /**
+     * 容器初始化org.springframework.scheduling.quartz.SchedulerFactoryBean
+     *   --  底层基于Quartz  --
+     * @param dataSource
+     * @return
+     */
     @Bean
     public SchedulerFactoryBean getSchedulerFactoryBean(DataSource dataSource){
 
@@ -29,6 +37,12 @@ public class XxlJobDynamicSchedulerConfig {
         return schedulerFactory;
     }
 
+    /**
+     * 容器初始化XxlJobDynamicScheduler时会调用start方法，销毁Bean时会调用destroy方法
+     * 具体需跟踪 com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler#start()  #destory()
+     * @param schedulerFactory
+     * @return
+     */
     @Bean(initMethod = "start", destroyMethod = "destroy")
     public XxlJobDynamicScheduler getXxlJobDynamicScheduler(SchedulerFactoryBean schedulerFactory){
 
