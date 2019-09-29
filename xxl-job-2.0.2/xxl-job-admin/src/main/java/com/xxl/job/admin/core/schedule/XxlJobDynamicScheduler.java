@@ -47,7 +47,7 @@ public final class XxlJobDynamicScheduler {
 		XxlJobDynamicScheduler.scheduler = scheduler;
 	}
 
-
+//容器初始化时调用该方法
     // ---------------------- init + destroy ----------------------
     public void start() throws Exception {
         // valid

@@ -46,6 +46,7 @@ public class XxlJobAdminConfig implements InitializingBean{
     @Value("${spring.mail.username}")
     private String emailUserName;
 
+    //内部集成服务相关dao
     // dao, service
 
     @Resource
