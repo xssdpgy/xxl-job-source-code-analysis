@@ -4,6 +4,9 @@ import java.util.Date;
 
 /**
  * xxl-job log, used to track trigger process
+ * 对应 XXL_JOB_QRTZ_TRIGGER_LOG 表
+ * 该表记录的是调度日志，后台管理系统对应【调度日志】部分
+ *
  * @author xuxueli  2015-12-19 23:19:09
  */
 public class XxlJobLog {

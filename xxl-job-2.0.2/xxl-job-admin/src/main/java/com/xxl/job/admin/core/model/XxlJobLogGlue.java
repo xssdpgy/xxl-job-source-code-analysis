@@ -2,6 +2,10 @@ package com.xxl.job.admin.core.model;
 
 /**
  * xxl-job log for glue, used to track job code process
+ *
+ * 对应 xxl_job_qrtz_trigger_logglue 表
+ * 该表记录任务GLUE：用于保存GLUE更新历史，用于支持GLUE的版本回溯功能；
+ *
  * @author xuxueli 2016-5-19 17:57:46
  */
 public class XxlJobLogGlue {
@@ -9,8 +13,11 @@ public class XxlJobLogGlue {
 	private int id;
 	private int jobId;				// 任务主键ID
 	private String glueType;		// GLUE类型	#com.xxl.job.core.glue.GlueTypeEnum
+	// GLUE源代码
 	private String glueSource;
+	// GLUE备注
 	private String glueRemark;
+
 	private String addTime;
 	private String updateTime;
 

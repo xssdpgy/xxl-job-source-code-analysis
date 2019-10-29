@@ -4,22 +4,31 @@ import java.util.Date;
 
 /**
  * xxl-job info
+ * 对应 XXL_JOB_QRTZ_TRIGGER_INFO 表
+ * 该表记录的是任务信息，后台管理系统对应【任务管理】部分
  *
  * @author xuxueli  2016-1-12 18:25:49
  */
 public class XxlJobInfo {
-	
-	private int id;				// 主键ID	    (JobKey.name)
-	
-	private int jobGroup;		// 执行器主键ID	(JobKey.group)
-	private String jobCron;		// 任务执行CRON表达式 【base on quartz】
+	// 主键ID	    (JobKey.name)
+	private int id;
+
+	// 执行器主键ID	(JobKey.group)
+	private int jobGroup;
+	// 任务执行CRON表达式 【base on quartz】
+	private String jobCron;
+	// 任务描述
 	private String jobDesc;
-	
+
+	// 创建时间
 	private Date addTime;
+	// 更新时间
 	private Date updateTime;
-	
-	private String author;		// 负责人
-	private String alarmEmail;	// 报警邮件
+
+	// 负责人
+	private String author;
+	// 报警邮件
+	private String alarmEmail;
 
 	private String executorRouteStrategy;	// 执行器路由策略
 	private String executorHandler;		    // 执行器，任务Handler名称
