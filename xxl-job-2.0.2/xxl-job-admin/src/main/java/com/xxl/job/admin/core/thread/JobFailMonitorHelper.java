@@ -34,9 +34,12 @@ public class JobFailMonitorHelper {
 
 	// ---------------------- monitor ----------------------
 
+	//监控线程
 	private Thread monitorThread;
+	//toStop是用volatile修饰的
 	private volatile boolean toStop = false;
 	public void start(){
+		//创建一个监控线程
 		monitorThread = new Thread(new Runnable() {
 
 			@Override
@@ -46,31 +49,37 @@ public class JobFailMonitorHelper {
 				while (!toStop) {
 					try {
 
+						//从数据库中取出所有执行失败且告警状态为0（默认）的日志ID，虽然这里传了pageSize为1000，实际没有进行分页，取出来的是所有符合条件的失败日志
 						List<Integer> failLogIds = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().findFailJobLogIds(1000);
 						if (failLogIds!=null && !failLogIds.isEmpty()) {
 							for (int failLogId: failLogIds) {
 
-								// lock log
+								// lock log 锁定日志
 								int lockRet = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().updateAlarmStatus(failLogId, 0, -1);
 								if (lockRet < 1) {
 									continue;
 								}
+								//取出失败日志完整信息
 								XxlJobLog log = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().load(failLogId);
+								//获取失败日志对应的日志信息
 								XxlJobInfo info = XxlJobAdminConfig.getAdminConfig().getXxlJobInfoDao().loadById(log.getJobId());
 
-								// 1、fail retry monitor
+								// 1、fail retry monitor 失败重试
+								//如果剩余失败可重试次数（ExecutorFailRetryCount：剩余可重复次数）>0
 								if (log.getExecutorFailRetryCount() > 0) {
+									//触发任务执行
 									JobTriggerPoolHelper.trigger(log.getJobId(), TriggerTypeEnum.RETRY, (log.getExecutorFailRetryCount()-1), log.getExecutorShardingParam(), null);
 									String retryMsg = "<br><br><span style=\"color:#F39C12;\" > >>>>>>>>>>>"+ I18nUtil.getString("jobconf_trigger_type_retry") +"<<<<<<<<<<< </span><br>";
 									log.setTriggerMsg(log.getTriggerMsg() + retryMsg);
 									XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().updateTriggerInfo(log);
 								}
 
-								// 2、fail alarm monitor
+								// 2、fail alarm monitor 失败告警
 								int newAlarmStatus = 0;		// 告警状态：0-默认、-1=锁定状态、1-无需告警、2-告警成功、3-告警失败
 								if (info!=null && info.getAlarmEmail()!=null && info.getAlarmEmail().trim().length()>0) {
 									boolean alarmResult = true;
 									try {
+										//失败告警发送邮件
 										alarmResult = failAlarm(info, log);
 									} catch (Exception e) {
 										alarmResult = false;
@@ -80,7 +89,7 @@ public class JobFailMonitorHelper {
 								} else {
 									newAlarmStatus = 1;
 								}
-
+								//更新告警状态
 								XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().updateAlarmStatus(failLogId, -1, newAlarmStatus);
 							}
 						}
@@ -141,8 +150,10 @@ public class JobFailMonitorHelper {
 
 	/**
 	 * fail alarm
-	 *
-	 * @param jobLog
+	 * 失败告警，发送邮件
+	 * @param info 任务信息
+	 * @param jobLog 调度日志信息
+	 * @return
 	 */
 	private boolean failAlarm(XxlJobInfo info, XxlJobLog jobLog){
 		boolean alarmResult = true;

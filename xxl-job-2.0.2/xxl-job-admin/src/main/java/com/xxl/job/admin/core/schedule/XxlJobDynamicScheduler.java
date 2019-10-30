@@ -57,12 +57,25 @@ public final class XxlJobDynamicScheduler {
         initI18n();
 
         // admin registry monitor run
+        /**
+         * 开通了一个守护线程，每隔30s扫描一次执行器的注册信息表
+         * 剔除90s内没有进行健康检查的执行器信息
+         * 将自动注册类型的执行器注册信息（XxlJobRegistry）经过处理更新执行器信息(XxlJobGroup)
+         */
         JobRegistryMonitorHelper.getInstance().start();
 
         // admin monitor run
+        /**
+         * 开通一个守护线程，每隔10s扫描一次失败日志
+         * 如果任务失败可重试次数>0，那么重新触发任务
+         * 如果任务执行失败，会进行告警，默认采用邮件形式进行告警
+         */
         JobFailMonitorHelper.getInstance().start();
 
         // admin-server
+        /**
+         * 启动注册中心的RPC服务，使得执行器项目可以通过RPC进行注册和心跳检测
+         */
         initRpcProvider();
 
         logger.info(">>>>>>>>> init xxl-job admin success.");
@@ -96,7 +109,7 @@ public final class XxlJobDynamicScheduler {
     // ---------------------- admin rpc provider (no server version) ----------------------
     private static ServletServerHandler servletServerHandler;
     private void initRpcProvider(){
-        // init
+        // init 初始化服务
         XxlRpcProviderFactory xxlRpcProviderFactory = new XxlRpcProviderFactory();
         xxlRpcProviderFactory.initConfig(
                 NetEnum.NETTY_HTTP,
@@ -107,7 +120,7 @@ public final class XxlJobDynamicScheduler {
                 null,
                 null);
 
-        // add services
+        // add services 给xxlRpcProviderFactory加入服务
         xxlRpcProviderFactory.addService(AdminBiz.class.getName(), null, XxlJobAdminConfig.getAdminConfig().getAdminBiz());
 
         // servlet handler

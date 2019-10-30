@@ -48,7 +48,12 @@ public class XxlJobDynamicSchedulerConfig {
 
         Scheduler scheduler = schedulerFactory.getScheduler();
 
+        //创建xxl job调度中心，在容器初始化bean后调用start方法
         XxlJobDynamicScheduler xxlJobDynamicScheduler = new XxlJobDynamicScheduler();
+        /**
+         * xxl-job的动态调度中心底层使用quartz的调度中心，通过RemoteHttpJobBean这个类
+           进行任务的触发（XxlJobDynamicScheduler类中的addJob方法）
+         */
         xxlJobDynamicScheduler.setScheduler(scheduler);
 
         return xxlJobDynamicScheduler;

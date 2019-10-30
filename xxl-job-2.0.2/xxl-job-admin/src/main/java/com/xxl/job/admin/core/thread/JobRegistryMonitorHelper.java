@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 剔除90s内没有进行健康检查的执行器信息
+ * 将自动注册类型的执行器注册信息（XxlJobRegistry）经过处理更新执行器信息(XxlJobGroup)
+ * 开通了一个守护线程，每隔30s扫描一次执行器的注册信息表，剔除90s内没有进行健康检查的执行器信息
  * job registry instance
  * @author xuxueli 2016-10-02 19:10:24
  */
