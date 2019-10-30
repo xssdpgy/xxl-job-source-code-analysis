@@ -14,28 +14,28 @@ public class XxlJobLog {
 	private int id;
 	
 	// job info
-	private int jobGroup;
-	private int jobId;
+	private int jobGroup; //执行器主键ID
+	private int jobId; //任务，主键ID
 
 	// execute info
-	private String executorAddress;
-	private String executorHandler;
-	private String executorParam;
-	private String executorShardingParam;
-	private int executorFailRetryCount;
+	private String executorAddress; //执行器地址，本次执行的地址
+	private String executorHandler; //执行器任务handler
+	private String executorParam; //执行器任务参数
+	private String executorShardingParam; //执行器任务分片参数，格式如 1/2
+	private int executorFailRetryCount; //失败重试次数
 	
 	// trigger info
-	private Date triggerTime;
-	private int triggerCode;
-	private String triggerMsg;
+	private Date triggerTime; //调度-时间
+	private int triggerCode; //调度-结果
+	private String triggerMsg; //调度-日志
 	
 	// handle info
-	private Date handleTime;
-	private int handleCode;
-	private String handleMsg;
+	private Date handleTime; //执行-时间
+	private int handleCode; //执行-状态
+	private String handleMsg; //执行-日志
 
 	// alarm info
-	private int alarmStatus;
+	private int alarmStatus; //告警状态 0-默认、-1=锁定状态、1-无需告警、2-告警成功、3-告警失败
 
 	public int getId() {
 		return id;
