@@ -16,6 +16,7 @@ public class ExecutorRouteRandom extends ExecutorRouter {
 
     @Override
     public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList) {
+        //通过在集群列表的大小内随机拿出一台机器来执行
         String address = addressList.get(localRandom.nextInt(addressList.size()));
         return new ReturnT<String>(address);
     }

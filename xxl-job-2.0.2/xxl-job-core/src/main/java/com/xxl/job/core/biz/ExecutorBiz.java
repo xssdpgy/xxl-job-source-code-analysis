@@ -17,7 +17,7 @@ public interface ExecutorBiz {
 
     /**
      * idle beat
-     *
+     * 检测当前任务的执行线程是否处于运行中
      * @param jobId
      * @return
      */

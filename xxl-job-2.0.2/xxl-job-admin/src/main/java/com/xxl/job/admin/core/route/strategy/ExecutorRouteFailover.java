@@ -10,6 +10,9 @@ import com.xxl.job.core.biz.model.TriggerParam;
 import java.util.List;
 
 /**
+ * 失败转移：
+ * 遍历集群地址列表心跳检测试探机器是否正常，如果失败，则继续调用下一台机器，
+ * 成功则跳出循环，返回成功信息
  * Created by xuxueli on 17/3/10.
  */
 public class ExecutorRouteFailover extends ExecutorRouter {
@@ -18,23 +21,26 @@ public class ExecutorRouteFailover extends ExecutorRouter {
     public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList) {
 
         StringBuffer beatResultSB = new StringBuffer();
+        //集群地址循环
         for (String address : addressList) {
             // beat
             ReturnT<String> beatResult = null;
             try {
+                //向执行器发送执行beat信息，试探该机器是否可以正常工作
                 ExecutorBiz executorBiz = XxlJobDynamicScheduler.getExecutorBiz(address);
                 beatResult = executorBiz.beat();
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 beatResult = new ReturnT<String>(ReturnT.FAIL_CODE, ""+e );
             }
+            //拼接日志
             beatResultSB.append( (beatResultSB.length()>0)?"<br><br>":"")
                     .append(I18nUtil.getString("jobconf_beat") + "：")
                     .append("<br>address：").append(address)
                     .append("<br>code：").append(beatResult.getCode())
                     .append("<br>msg：").append(beatResult.getMsg());
 
-            // beat success
+            // beat success  如果心跳检测结果返回成功，则使用该地址
             if (beatResult.getCode() == ReturnT.SUCCESS_CODE) {
 
                 beatResult.setMsg(beatResultSB.toString());

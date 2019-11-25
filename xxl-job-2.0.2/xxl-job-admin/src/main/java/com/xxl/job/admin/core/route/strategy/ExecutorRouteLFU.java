@@ -16,17 +16,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExecutorRouteLFU extends ExecutorRouter {
 
+    //定义个静态的Map， 用来存储任务ID对应的执行信息
     private static ConcurrentHashMap<Integer, HashMap<String, Integer>> jobLfuMap = new ConcurrentHashMap<Integer, HashMap<String, Integer>>();
+    //定义过期时间戳
     private static long CACHE_VALID_TIME = 0;
 
     public String route(int jobId, List<String> addressList) {
 
-        // cache clear
+        // cache clear 如果当前系统时间大于过期时间,清空cache
         if (System.currentTimeMillis() > CACHE_VALID_TIME) {
             jobLfuMap.clear();
+            //重新设置过期时间，默认为一天
             CACHE_VALID_TIME = System.currentTimeMillis() + 1000*60*60*24;
         }
 
+        //从MAP中获取执行信息 (lfuItemMap中放的是执行器地址以及执行次数)
         // lfu item init
         HashMap<String, Integer> lfuItemMap = jobLfuMap.get(jobId);     // Key排序可以用TreeMap+构造入参Compare；Value排序暂时只能通过ArrayList；
         if (lfuItemMap == null) {
@@ -53,6 +57,7 @@ public class ExecutorRouteLFU extends ExecutorRouter {
             }
         }
 
+        //将lfuItemMap中的key.value, 取出来，然后使用Comparator进行排序，value小的靠前
         // load least userd count address
         List<Map.Entry<String, Integer>> lfuItemList = new ArrayList<Map.Entry<String, Integer>>(lfuItemMap.entrySet());
         Collections.sort(lfuItemList, new Comparator<Map.Entry<String, Integer>>() {
@@ -62,6 +67,7 @@ public class ExecutorRouteLFU extends ExecutorRouter {
             }
         });
 
+        //取第一个，也就是最小的一个，将address返回，同时对该address对应的值加1
         Map.Entry<String, Integer> addressItem = lfuItemList.get(0);
         String minAddress = addressItem.getKey();
         addressItem.setValue(addressItem.getValue() + 1);

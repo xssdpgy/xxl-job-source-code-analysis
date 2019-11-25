@@ -13,6 +13,7 @@ public class ExecutorRouteLast extends ExecutorRouter {
 
     @Override
     public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList) {
+        //直接获取执行器地址列表中的最后一个
         return new ReturnT<String>(addressList.get(addressList.size()-1));
     }
 

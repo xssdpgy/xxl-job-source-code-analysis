@@ -29,13 +29,20 @@ public class ExecutorBizImpl implements ExecutorBiz {
         return ReturnT.SUCCESS;
     }
 
+    /**
+     * 检测当前任务的执行线程是否处于运行中
+     * @param jobId
+     * @return
+     */
     @Override
     public ReturnT<String> idleBeat(int jobId) {
 
         // isRunningOrHasQueue
         boolean isRunningOrHasQueue = false;
+        //从线程池里面获取当前任务对应的线程
         JobThread jobThread = XxlJobExecutor.loadJobThread(jobId);
         if (jobThread != null && jobThread.isRunningOrHasQueue()) {
+            //线程处于运行中
             isRunningOrHasQueue = true;
         }
 

@@ -12,6 +12,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * 一致性Hash
+ *
  * 分组下机器地址相同，不同JOB均匀散列在不同机器上，保证分组下机器分配JOB平均；且每个JOB固定调度其中一台机器；
  *      a、virtual node：解决不均衡问题
  *      b、hash method replace hashCode：String的hashCode可能重复，需要进一步扩大hashCode的取值范围
@@ -63,16 +65,21 @@ public class ExecutorRouteConsistentHash extends ExecutorRouter {
         TreeMap<Long, String> addressRing = new TreeMap<Long, String>();
         for (String address: addressList) {
             for (int i = 0; i < VIRTUAL_NODE_NUM; i++) {
+                //通过自定义的Hash方法，得到服务节点的Hash值，同时放入treeMap
                 long addressHash = hash("SHARD-" + address + "-NODE-" + i);
                 addressRing.put(addressHash, address);
             }
         }
 
+        //得到JobId的Hash值
         long jobHash = hash(String.valueOf(jobId));
+        //调用treeMap的tailMap方法，拿到map中键大于jobHash的值列表
         SortedMap<Long, String> lastRing = addressRing.tailMap(jobHash);
+        //如果addressRing中有比jobHash的那么直接取lastRing 的第一个
         if (!lastRing.isEmpty()) {
             return lastRing.get(lastRing.firstKey());
         }
+        //如果没有，则直接取addresRing的第一个（最终的效果是在Hash环上，顺时针拿离jobHash最近的一个值）
         return addressRing.firstEntry().getValue();
     }
 

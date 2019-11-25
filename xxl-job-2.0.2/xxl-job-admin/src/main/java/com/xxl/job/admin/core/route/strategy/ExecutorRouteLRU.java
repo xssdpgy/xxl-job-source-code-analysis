@@ -18,7 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExecutorRouteLRU extends ExecutorRouter {
 
+    //定义静态的Map， 用来存储任务ID对应的执行信息
     private static ConcurrentHashMap<Integer, LinkedHashMap<String, String>> jobLRUMap = new ConcurrentHashMap<Integer, LinkedHashMap<String, String>>();
+    //定义过期时间戳
     private static long CACHE_VALID_TIME = 0;
 
     public String route(int jobId, List<String> addressList) {
@@ -26,6 +28,7 @@ public class ExecutorRouteLRU extends ExecutorRouter {
         // cache clear
         if (System.currentTimeMillis() > CACHE_VALID_TIME) {
             jobLRUMap.clear();
+            //重新设置过期时间，默认为一天
             CACHE_VALID_TIME = System.currentTimeMillis() + 1000*60*60*24;
         }
 
@@ -41,7 +44,7 @@ public class ExecutorRouteLRU extends ExecutorRouter {
             jobLRUMap.putIfAbsent(jobId, lruItem);
         }
 
-        // put new
+        // put new 如果地址列表里面有地址不在map中，此处是可以再次放入，防止添加机器的问题
         for (String address: addressList) {
             if (!lruItem.containsKey(address)) {
                 lruItem.put(address, address);

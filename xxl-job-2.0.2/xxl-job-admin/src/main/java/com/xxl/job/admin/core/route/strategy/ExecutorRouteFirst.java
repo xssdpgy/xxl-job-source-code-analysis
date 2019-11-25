@@ -13,6 +13,7 @@ public class ExecutorRouteFirst extends ExecutorRouter {
 
     @Override
     public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList){
+        //获取执行器集群地址的第一个
         return new ReturnT<String>(addressList.get(0));
     }
 
